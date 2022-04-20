@@ -29,4 +29,5 @@ def showPoster():
     </html
     '''
 
-app.run(host='localhost')
+if __name__ == "__main__":
+    app.run()
