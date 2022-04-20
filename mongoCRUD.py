@@ -1,10 +1,10 @@
 from pymongo import MongoClient
 from gridfs import GridFS
 from os import environ
-# import requests
+import requests
 
 HOST = environ.get('PROJ_HOST', 'localhost')
-PORT = environ.get('PROJ_PORT', '27017')
+PORT = int(environ.get('PROJ_PORT', '27017'))
 DB   = environ.get('PROJ_DB', 'posters_database')
 
 class posterStorage:
