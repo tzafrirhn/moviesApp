@@ -1,5 +1,11 @@
 from flask import Flask, request, redirect, url_for
+from mongoCRUD import posterStorage
 app = Flask(__name__)
+
+@app.route('/posters/<name>')
+def show_poster(name):
+    poster = posters.find(name)
+    return poster.read()
 
 @app.route('/')
 def searchPoster():
@@ -23,4 +29,5 @@ def showPoster():
 
 
 if __name__ == "__main__":
+    posters = posterStorage()
     app.run()

@@ -3,13 +3,13 @@ from gridfs import GridFS
 from os import environ
 # import requests
 
-HOST = environ['PROJ_HOST'] or 'localhost'
-PORT = environ['PROJ_PORT'] or '27017'
-DB   = environ['PROJ_DB']   or 'posters_database'
+HOST = environ.get('PROJ_HOST', 'localhost')
+PORT = environ.get('PROJ_PORT', '27017')
+DB   = environ.get('PROJ_DB', 'posters_database')
 
 class posterStorage:
 
-    def __init__(self, db, host, port):
+    def __init__(self, db=DB, host=HOST, port=PORT):
         self.opts = {'host': host, 'port': port}
         self.database = db
 
