@@ -1,52 +1,38 @@
-import gridfs
-import requests
-import os
 from pymongo import MongoClient
+from gridfs import GridFS
+from os import environ
+# import requests
 
-connection_url = "mongodb://localhost:27017/"
+HOST = environ['PROJ_HOST'] or 'localhost'
+PORT = environ['PROJ_PORT'] or '27017'
+DB   = environ['PROJ_DB']   or 'posters_database'
 
+class posterStorage:
 
-def mongoConnect():
-    try:
-        conn = MongoClient(connection_url)
-        print("MongoDB connected", conn)
-        return conn.PosterFiles
-    except Exception as e:
-        print("Error in Mongo Connection:", e)
+    def __init__(self, db, host, port):
+        self.opts = {'host': host, 'port': port}
+        self.database = db
 
+    @property
+    def files(self):
+        connection = MongoClient(**self.opts)
+        return GridFS(connection[self.database])
 
-def newPoster(file):
-    db = mongoConnect()
-    # Create an object of GridFs for the above database.
-    fs = gridfs.GridFS(db)
-    # Open the image in read-only format.
-    if file.startswith('http://') or file.startswith('https://'):
-        imContent = requests.get(file)
-    else:
-        with open(file, 'rb') as f:
-            imContent = f.read()
+    def save(self, name, data):
+        return self.files.put(data, filename=name)
 
-    # Now store/put the image via GridFs object.
-    name = file.split('/')
-    print(name[-1])
-    fs.put(imContent.content, filename=name[-1])
+    def find(self, name):
+        return self.files.find_one({'filename': name})
 
+    def overwrite(self, name, data):
+        self.delete(name)
+        self.save(name, data)
 
-def getPoster(name):
-    db = mongoConnect()
-    fs = gridfs.GridFS(db)
-    try:
-        print(name)
-        data = fs.find_one({'filename': name})
-        image = data.read()
-        temp = open("images/poster.jpg", 'wb')
-        temp.write(image)
-        path=os.path.join(os.path.abspath("."),"images","poster.jpg")
-        temp.close()
-    except Exception as e:
-        print(e)
-    return path
+    def delete(self, name):
+        return self.files.delete(self.find(name)._id)
 
-
-getPoster("pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg")
-# newPoster("https://image.tmdb.org/t/p/original/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg")
+# if __name__ == "__main__":
+#     db = posterStorage(db=DB, host=HOST, port=PORT)
+#     file = requests.get("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi0.wp.com%2Fwallpapershero.com%2Fwp-content%2Fuploads%2Fsites%2F13%2F2014%2F11%2FCat-Sad-Annoyed.jpg%3Ffit%3D2560%252C1600%26ssl%3D1&f=1&nofb=1")
+#     db.save(name='test', data=file.content)
+#     db.delete('test')

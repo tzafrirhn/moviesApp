@@ -1,40 +1,26 @@
-from flask import Flask,request,redirect
-import requests
-from mongoCRUD import getPoster
-
-app = Flask(__name__, template_folder="template")
-
+from flask import Flask, request, redirect, url_for
+app = Flask(__name__)
 
 @app.route('/')
 def searchPoster():
     return '''<html>
     <body>
-    <form action="search" method="POST">
-    <label>Movie Name:</label>
-    <input type="search" name="image">
-    <input type="submit">
-    </form>
-    </body>
-    </html>
-    '''
-
-
-@app.route('/search/<image>', methods=['GET', 'POST'])
-def showPoster(image):
-    #image = request.args.get('image')
-    # search and upload to mongo function and show poster
-    filename = getPoster(image)
-    return f'''<html>
-    <body>
     <form action="search">
     <label>Movie Name:</label>
-    <input type="search" name="image">
+    <input type="search" name="psearch">
     <input type="submit">
     </form>
-    <img src="{filename}">
     </body>
     </html>
     '''
 
+@app.route('/search')
+def showPoster():
+    args = request.args
+    if 'psearch' not in args.keys():
+        return redirect(url_for('searchPoster'))
+    return f"""Searched for: {args['psearch']}"""
 
-app.run(host='localhost',port=5000,debug=True)
+
+if __name__ == "__main__":
+    app.run()
