@@ -3,9 +3,9 @@ from gridfs import GridFS
 from os import environ
 import requests
 
-HOST = environ.get('PROJ_HOST', 'localhost')
-PORT = int(environ.get('PROJ_PORT', '27017'))
-DB   = environ.get('PROJ_DB', 'posters_database')
+HOST = environ.get('PROJ_MONGO_HOST', 'localhost')
+PORT = int(environ.get('PROJ_MONGO_PORT', '27017'))
+DB   = environ.get('PROJ_MONGO_DB', 'posters_database')
 
 class posterStorage:
 
