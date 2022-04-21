@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, session
+from flask import Flask, request, redirect, url_for, session, make_response
 import requests
 from mongoCRUD import posterStorage
 from scraper import TMDBScraper
@@ -10,7 +10,11 @@ app.secret_key = str(token_hex(1024))
 @app.route('/posters/<name>')
 def show_poster(name):
     poster = posters.find(name)
-    return poster.read()
+    if poster is None:
+        return make_response("Not found", 404)
+    response = make_response(poster.read())
+    response.content_type = "image/webp"
+    return response
 
 @app.route('/')
 def searchPoster():
