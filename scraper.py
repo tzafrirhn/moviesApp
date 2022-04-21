@@ -1,5 +1,5 @@
 import requests
-import urllib
+import urllib.parse
 from os import environ
 
 TMDB_KEY = environ['PROJ_TMDB_KEY']
