@@ -18,20 +18,18 @@ class TMDBScraper:
 
     def get_config(self):
         query = self.URL_CNF.format(KEY=self.key)
-        response = requests.get(query)
-        if response.status_code != 200:
-            raise Exception
-        return response.json()
+        with requests.get(query) as response:
+            return response.json()
 
     def search_ids(self, name):
         query = self.search['by_name'].format(KEY=self.key, QUERY=urllib.parse.quote(name))
-        response = requests.get(query)
-        return [x['id'] for x in response.json()['results']]
+        with requests.get(query) as response:
+            return [x['id'] for x in response.json()['results']]
 
     def get_img(self, id):
         query = self.search['by_imdb_id'].format(KEY=self.key, ID=id)
-        response = requests.get(query)
-        return [f"{self.conf['images']['base_url']}original{x['file_path']}" for x in response.json()['posters']]
+        with requests.get(query) as response:
+            return [f"{self.conf['images']['base_url']}original{x['file_path']}" for x in response.json()['posters']]
 
 
 if __name__ == "__main__":
