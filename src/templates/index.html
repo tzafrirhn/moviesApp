@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} Poster Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static',filename='index.css') }}">
+    </head>
+    <body>
+    <div id="search">
+    <form id="searchform" action="/">
+    <input type="search" id="searchbar" name="psearch" value="{% block search %}{% endblock %}" placeholder="Movie Name">
+    <input type="hidden" name="selected_img" value="0">
+    </form>
+    </div>
+    <div id="content">
+        <div id=results>{% block results %} {% endblock %}</div>
+        <div id=images>{% block images %} {% endblock %}</div>
+    </div>
+    </body>
+    </html>

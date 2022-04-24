@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, session, make_response
+from flask import Flask, request, redirect, url_for, session, make_response, render_template_string
 import requests
 from mongoCRUD import posterStorage, cache
 from scraper import TMDBScraper
@@ -6,7 +6,7 @@ from secrets import token_hex
 from sys import stderr as out
 from urllib.parse import quote
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.secret_key = str(token_hex(1024))
 
 @app.route('/posters/<name>')
@@ -21,87 +21,6 @@ def show_poster(name):
     # response.content_type = "image/webp"
     # return response
 
-
-style = """
-* {
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  margin: 0;
-  overflow: hidden;
-}
-
-#search {
-}
-
-#content {
-  width: 100%;
-  background: #f0f0f0;
-  float: left;
-}
-
-#searchbar {
-  line-height: 2em;
-  font-size: 1em;
-  width: 100%;
-  padding: .3em;
-}
-
-#searchform {
-  text-align: center;
-  position: relative;
-  margin: 1em auto 1em auto;
-  width: 95%;
-}
-
-#images {
-  padding: 2em;
-  overflow-y: auto;
-}
-
-#results {
-  float: left;
-  overflow-y: auto;
-  max-width: 20em;
-  padding: .4em;
-  background: #e0e0e0;
-  height: 95%;
-}
-
-img {
-  max-width: 30%;
-  height: auto;
-  padding: 1em;
-  border-radius: 20% 2em 20% 2em;
-  filter: drop-shadow(.3em .5em 1em #888);
-}
-
-a > .poster_div {
-  padding: .2em;
-  white-space: nowrap;
-  overflow: hidden;
-  padding-left: 1em;
-  border-radius: 1em;
-  background: #eee;
-  margin: .5em;
-  color: #403e3c;
-}
-
-a:visited > .poster_div {
-  background: #d4d4d4;
-  color: #808080;
-}
-
-a:hover > .poster_div {
-  background: #fdf8d5;
-  color: #000000;
-}
-
-.poster_link {
-  text-decoration: unset;
-}
-"""
 
 blob_image = """
 <img src='{url}' />
@@ -121,37 +40,20 @@ def searchPoster():
 
     [results, images] = maybe_render_img(args)
 
-    images = ''.join([
+    images = '{% block images %}'+''.join([
         blob_image.format(url=x)
         for x in images
-    ])
+    ])+'{% endblock %}'
 
-    results = ''.join([
+    results = '{% block results %}'+''.join([
         blob_link.format(base=request.base_url, srch=quote(args['psearch']), nr=x[0], name=x[1])
         for x in enumerate(results)
-    ])
+    ])+'{% endblock %}'
+    ######## fix psearch don't exist
+    psearch = '{% block search %}' + args.get('psearch', '') + '{% endblock %}'
+    title='{ % block title %}'+args.get('psearch', '')+'{ % endblock %}'
 
-    return f'''<html>
-    <head>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>{style}</style>
-    </head>
-    <body>
-    <div id="search">
-    <form id="searchform" action="/">
-    <input type="search" id="searchbar" name="psearch" value="{args.get('psearch', '')}">
-    <input type="hidden" name="selected_img" value="0">
-    </form>
-    </div>
-    <div id="content">
-        <div id=results>{results}</div>
-        <div id=images>{images}</div>
-    </div>
-    </body>
-    </html>
-    '''
+    return render_template_string('{% extends "index.html" %} '+results+images+psearch+title)
 
 def log(*args, **kwargs):
     print("="*80)
