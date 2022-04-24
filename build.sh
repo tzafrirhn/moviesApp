@@ -15,7 +15,7 @@ _build()
 _run()
 {
   docker network create "$app_network" || :
-  docker run "--net=$app_network" --detach --rm "--hostname=$mongo_container" "--name=$mongo_container" --expose 27017 mongo
+  docker run "--net=$app_network" --detach --rm "--hostname=$mongo_container" "--name=$mongo_container" --expose 27017 -p27017:27017 mongo
   docker run "--net=$app_network" --rm -e "PROJ_MONGO_HOST=$mongo_container" "--name=$app_container" -p 80:5000   \
     --env-file docker_env "$app_image"
 }

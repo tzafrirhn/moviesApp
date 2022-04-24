@@ -1,10 +1,12 @@
-from flask import Flask, request, redirect, url_for, session
+import sys
+
+from flask import Flask, request, redirect, url_for, session, render_template
 import requests
 from mongoCRUD import posterStorage
 from scraper import TMDBScraper
 from secrets import token_hex
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='templates')
 app.secret_key = str(token_hex(1024))
 
 @app.route('/posters/<name>')
@@ -16,19 +18,9 @@ def show_poster(name):
 def searchPoster():
     image = ""
     if 'psearch' in session.keys():
-        image = f"""<img src="{url_for('show_poster', name=session['psearch'])}" />"""
+        image = url_for('show_poster', name=session['psearch'])
         session.pop('psearch', None)
-    return f'''<html>
-    <body>
-    <form action="search">
-    <label>Movie Name:</label>
-    <input type="search" name="psearch">
-    <input type="submit">
-    </form>
-    {image}
-    </body>
-    </html>
-    '''
+    return render_template('index.html', image=image)
 
 @app.route('/search')
 def showPoster():
@@ -48,4 +40,4 @@ def showPoster():
 if __name__ == "__main__":
     posters = posterStorage()
     scraper = TMDBScraper()
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
