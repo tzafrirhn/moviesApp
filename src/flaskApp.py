@@ -51,7 +51,7 @@ def searchPoster():
     ])+'{% endblock %}'
     ######## fix psearch don't exist
     psearch = '{% block search %}' + args.get('psearch', '') + '{% endblock %}'
-    title='{ % block title %}'+args.get('psearch', '')+'{ % endblock %}'
+    title='{% block title %}'+args.get('psearch', '')+'{% endblock %}'
 
     return render_template_string('{% extends "index.html" %} '+results+images+psearch+title)
 
@@ -67,11 +67,11 @@ def maybe_render_img(args):
     if 'psearch' not in args.keys(): return ((), ())
     selected_img = int(args.get('selected_img', 0))
 
-    results = cached.search_by_name(args['psearch'])
+    results = cached.search_by_name(args['psearch']) #search in mongodb
     if len(results) == 0:
-        results = scraper.search_by_name(args['psearch'])
-        cached.put(results, args['psearch'])
-    if len(results) == 0: return ((), ())
+        results = scraper.search_by_name(args['psearch']) #if not found search in tmdb
+        cached.put(results, args['psearch']) # save poster in tmdb
+    if len(results) == 0: return ((), ()) #if results empty from tmdb
 
     selected_image = results[selected_img]
 
@@ -83,9 +83,9 @@ def maybe_render_img(args):
 
     log(movie_images)
 
-    return ([x['original_title'] for x in results], movie_images)
+    return ([x['original_title'] for x in results], movie_images) # return poster list
 
-
+#return url for selected image
 def find_or_add(url):
     fname = url.lstrip('/')
     exists = posters.find(fname)

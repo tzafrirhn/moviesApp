@@ -33,6 +33,7 @@ body {
 #images {
   padding: 2em;
   overflow-y: auto;
+  height: 95%;
 }
 
 #results {
